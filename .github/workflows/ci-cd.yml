@@ -19,27 +19,27 @@ jobs:
       - name: ⚙️ Setup Go (Backend)
         uses: actions/setup-go@v5
         with:
-          [cite_start]go-version: '1.23' # Version Go requise par le TP [cite: 78, 206]
+          go-version: '1.23' # Version Go requise par le TP
 
       - name: 🧪 Run Backend Tests & Quality Checks
         run: |
           cd backend
           go mod download
-          [cite_start]go test ./... -v # Exécute les tests unitaires Go [cite: 136]
-          [cite_start]go vet ./...      # Vérifie la qualité du code Go [cite: 138]
+          go test ./... -v # Exécute les tests unitaires Go
+          go vet ./...      # Vérifie la qualité du code Go
 
       - name: ⚙️ Setup Node.js (Frontend)
         uses: actions/setup-node@v4
         with:
-          [cite_start]node-version: 18 # Version Node.js requise par le TP [cite: 77]
+          node-version: 18 # Version Node.js requise par le TP
 
       - name: 🧪 Run Frontend Tests & Quality Checks
         run: |
           cd frontend
           npm install
-          [cite_start]npm run test         # Exécute les tests Vitest [cite: 120]
-          [cite_start]npm run lint         # Exécute ESLint [cite: 122]
-          [cite_start]npm run format:check # Vérifie le format Prettier [cite: 122]
+          npm run test         # Exécute les tests Vitest
+          npm run lint         # Exécute ESLint
+          npm run format:check # Vérifie le format Prettier
 
   # ----------------------------------------------------
   # JOB 2: Build & Push Images to Docker Hub
@@ -96,7 +96,7 @@ jobs:
         run: |
           cd frontend
           npm install
-          [cite_start]npm run build-storybook # Construit la documentation Storybook [cite: 126]
+          npm run build-storybook # Construit la documentation Storybook
 
       - name: 🚀 Deploy to Netlify
         uses: netlify/actions/cli@master
