@@ -1,0 +1,127 @@
+name: 🚀 CI/CD Pipeline Christmas Gift List
+
+# Déclenche le workflow sur chaque push vers la branche 'main'
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # ----------------------------------------------------
+  # JOB 1: Continuous Integration (Tests & Qualité)
+  # ----------------------------------------------------
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Go (Backend)
+        uses: actions/setup-go@v5
+        with:
+          [cite_start]go-version: '1.23' # Version Go requise par le TP [cite: 78, 206]
+
+      - name: 🧪 Run Backend Tests & Quality Checks
+        run: |
+          cd backend
+          go mod download
+          [cite_start]go test ./... -v # Exécute les tests unitaires Go [cite: 136]
+          [cite_start]go vet ./...      # Vérifie la qualité du code Go [cite: 138]
+
+      - name: ⚙️ Setup Node.js (Frontend)
+        uses: actions/setup-node@v4
+        with:
+          [cite_start]node-version: 18 # Version Node.js requise par le TP [cite: 77]
+
+      - name: 🧪 Run Frontend Tests & Quality Checks
+        run: |
+          cd frontend
+          npm install
+          [cite_start]npm run test         # Exécute les tests Vitest [cite: 120]
+          [cite_start]npm run lint         # Exécute ESLint [cite: 122]
+          [cite_start]npm run format:check # Vérifie le format Prettier [cite: 122]
+
+  # ----------------------------------------------------
+  # JOB 2: Build & Push Images to Docker Hub
+  # ----------------------------------------------------
+  publish-docker:
+    needs: ci # Démarre seulement si le job de CI a réussi
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_REPO: ${{ secrets.DOCKER_USERNAME }}/christmas-gift-list
+      TAG: ${{ github.sha }}
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }} # Utilise le PAT Docker Hub
+
+      - name: 🛠️ Build and push Backend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_REPO }}_backend:${{ env.TAG }} # Ex: user/christmas-gift-list_backend:sha
+
+      - name: 🛠️ Build and push Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_REPO }}_frontend:${{ env.TAG }} # Ex: user/christmas-gift-list_frontend:sha
+
+  # ----------------------------------------------------
+  # JOB 3: Deploy Frontend (Documentation) & Trigger Backend Update
+  # ----------------------------------------------------
+  deploy:
+    needs: publish-docker # Démarre seulement si les images ont été poussées
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      # -- DEPLOIEMENT NETLIFY (Documentation / Storybook) --
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 🛠️ Build Storybook/Documentation
+        run: |
+          cd frontend
+          npm install
+          [cite_start]npm run build-storybook # Construit la documentation Storybook [cite: 126]
+
+      - name: 🚀 Deploy to Netlify
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --dir=frontend/storybook-static --prod # Déploie le dossier Storybook
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      # -- DÉCLENCHEMENT RENDER (Backend) --
+      - name: 💥 Trigger Render Deploy Hook
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+
+  # ----------------------------------------------------
+  # JOB 4: Create GitHub Release
+  # ----------------------------------------------------
+  create-release:
+    needs: deploy # Démarre seulement si le déploiement a réussi
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }} # Utilise le numéro d'exécution comme tag
+          name: Release v${{ github.run_number }}
+          body: New features and fixes deployed via CI/CD pipeline.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Secret géré automatiquement
