@@ -8,19 +8,29 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: christmas_gifts
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    # ajout d'un healthcheck pour savoir quand la DB est vraiment prête 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
     ports:
       - "8080:8080"
     environment:
+      # 5432 car on parle au port INTERNE du conteneur db
       DATABASE_URL: postgres://postgres:postgres@db:5432/christmas_gifts?sslmode=disable
       PORT: 8080
     depends_on:
-      - db
+      db:
+        condition: service_healthy # Attend que le healthcheck de la DB soit OK
+    
+    restart: on-failure 
 
   frontend:
     build: ./frontend
