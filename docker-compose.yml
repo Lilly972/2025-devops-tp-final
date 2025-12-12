@@ -1,11 +1,9 @@
 version: '3.8'
 
 services:
-  # Service Base de Données PostgreSQL
   db:
-    [cite_start]image: postgres:15-alpine # Version 15+ 
+    image: postgres:15-alpine
     environment:
-      # Identifiants 
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: christmas_gifts
@@ -14,23 +12,20 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # Service Backend (API Go)
   backend:
-    build: ./backend # Utilise le Dockerfile qu'on vient de créer dans backend/
+    build: ./backend
     ports:
-      - "8080:8080" # Accessible sur localhost:8080
+      - "8080:8080"
     environment:
-      # Chaîne de connexion adaptée pour Docker (le host est "db", pas "localhost") 
       DATABASE_URL: postgres://postgres:postgres@db:5432/christmas_gifts?sslmode=disable
       PORT: 8080
     depends_on:
-      - db # Attend que la DB soit lancée
+      - db
 
-  # Service Frontend (React)
   frontend:
-    build: ./frontend # Utilise le Dockerfile qu'on vient de créer dans frontend/
+    build: ./frontend
     ports:
-      - "5173:80" # On map le port 80 du conteneur vers 5173 
+      - "5173:80"
     depends_on:
       - backend
 
