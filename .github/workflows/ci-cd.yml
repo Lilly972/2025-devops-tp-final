@@ -19,7 +19,9 @@ jobs:
       - name: ⚙️ Setup Go (Backend)
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23' # Version Go requise par le TP
+          go-version: '1.23' # Version Go 
+          cache-dependency-path: |
+            backend/go.sum
 
       - name: 🧪 Run Backend Tests & Quality Checks
         run: |
