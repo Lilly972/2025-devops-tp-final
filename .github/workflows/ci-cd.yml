@@ -19,9 +19,8 @@ jobs:
       - name: ⚙️ Setup Go (Backend)
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23' # Version Go 
-          cache-dependency-path: |
-            backend/go.sum
+          go-version: '1.23' # 
+          cache-dependency-path: backend/go.sum # Correction pour le cache Go
 
       - name: 🧪 Run Backend Tests & Quality Checks
         run: |
@@ -33,7 +32,8 @@ jobs:
       - name: ⚙️ Setup Node.js (Frontend)
         uses: actions/setup-node@v4
         with:
-          node-version: 18 # Version Node.js requise par le TP
+          node-version: 18 #
+          cache-dependency-path: frontend/package-lock.json # Correction pour le cache Node.js
 
       - name: 🧪 Run Frontend Tests & Quality Checks
         run: |
