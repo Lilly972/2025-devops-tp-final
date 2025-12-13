@@ -11,7 +11,7 @@ RUN npm run build-storybook
 FROM nginx:alpine
 
 # Copier la configuration Nginx customisée
-# Le fichier est maintenant dans le même répertoire que le Dockerfile (frontend/)
+# Le chemin est maintenant 'nginx.conf' car il a été déplacé dans le dossier frontend/
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copier les fichiers statiques du build Storybook
