@@ -5,9 +5,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
 COPY . .
-RUN npm run build-docker-storybook 
-# COPY . .
-# RUN npm run build-storybook
+RUN npm run build-storybook 
 
 # Étape 2: Serveur de production Nginx
 FROM nginx:alpine
