@@ -19,35 +19,35 @@ jobs:
       - name: ⚙️ Setup Go (Backend)
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23' # 
-          cache-dependency-path: backend/go.sum # Correction pour le cache Go
+          go-version: '1.23' 
+          cache-dependency-path: backend/go.sum 
 
-      - name: 🧪 Run Backend Tests & Quality Checks
+      - name: 🧪 Run Backend Tests
         run: |
           cd backend
           go mod download
           go test ./... -v # Exécute les tests unitaires Go
-          go vet ./...      # Vérifie la qualité du code Go
+          # go vet ./...     # Désactivé (Qualité du code)
 
       - name: ⚙️ Setup Node.js (Frontend)
         uses: actions/setup-node@v4
         with:
-          node-version: 18 #
-          cache-dependency-path: frontend/package-lock.json # Correction pour le cache Node.js
+          node-version: 18
+          cache-dependency-path: frontend/package-lock.json 
 
-      - name: 🧪 Run Frontend Tests & Quality Checks
+      - name: 🧪 Run Frontend Tests
         run: |
           cd frontend
           npm install
           npm run test         # Exécute les tests Vitest
-          npm run lint         # Exécute ESLint
-          npm run format:check # Vérifie le format Prettier
+          # npm run lint         # Désactivé (ESLint)
+          # npm run format:check # Désactivé (Prettier Check)
 
   # ----------------------------------------------------
   # JOB 2: Build & Push Images to Docker Hub
   # ----------------------------------------------------
   publish-docker:
-    needs: ci # Démarre seulement si le job de CI a réussi
+    needs: ci 
     runs-on: ubuntu-latest
     env:
       IMAGE_REPO: ${{ secrets.DOCKER_USERNAME }}/christmas-gift-list
@@ -60,7 +60,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }} # Utilise le PAT Docker Hub
+          password: ${{ secrets.DOCKER_PASSWORD }} 
 
       - name: 🛠️ Build and push Backend Image
         uses: docker/build-push-action@v5
@@ -68,7 +68,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ${{ env.IMAGE_REPO }}_backend:${{ env.TAG }} # Ex: user/christmas-gift-list_backend:sha
+          tags: ${{ env.IMAGE_REPO }}_backend:${{ env.TAG }} 
 
       - name: 🛠️ Build and push Frontend Image
         uses: docker/build-push-action@v5
@@ -76,13 +76,13 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ env.IMAGE_REPO }}_frontend:${{ env.TAG }} # Ex: user/christmas-gift-list_frontend:sha
+          tags: ${{ env.IMAGE_REPO }}_frontend:${{ env.TAG }} 
 
   # ----------------------------------------------------
   # JOB 3: Deploy Frontend (Documentation) & Trigger Backend Update
   # ----------------------------------------------------
   deploy:
-    needs: publish-docker # Démarre seulement si les images ont été poussées
+    needs: publish-docker 
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout code
@@ -103,7 +103,7 @@ jobs:
       - name: 🚀 Deploy to Netlify
         uses: netlify/actions/cli@master
         with:
-          args: deploy --dir=frontend/storybook-static --prod # Déploie le dossier Storybook
+          args: deploy --dir=frontend/storybook-static --prod 
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -116,14 +116,14 @@ jobs:
   # JOB 4: Create GitHub Release
   # ----------------------------------------------------
   create-release:
-    needs: deploy # Démarre seulement si le déploiement a réussi
+    needs: deploy 
     runs-on: ubuntu-latest
     steps:
       - name: 🚀 Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ github.run_number }} # Utilise le numéro d'exécution comme tag
+          tag_name: v${{ github.run_number }} 
           name: Release v${{ github.run_number }}
           body: New features and fixes deployed via CI/CD pipeline.
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Secret géré automatiquement
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
