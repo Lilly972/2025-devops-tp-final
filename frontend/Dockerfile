@@ -14,7 +14,7 @@ FROM nginx:alpine
 # Copier la configuration Nginx customisée
 # Cela remplace le fichier de configuration par défaut de Nginx
 # Le chemin "../nginx/nginx.conf" est correct si le Dockerfile est dans 'frontend'
-COPY ../nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copier les fichiers statiques du build Storybook (le contenu de storybook-static)
 COPY --from=build /app/storybook-static /usr/share/nginx/html
