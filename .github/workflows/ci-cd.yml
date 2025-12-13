@@ -26,7 +26,7 @@ jobs:
         run: |
           cd backend
           go mod download
-          go test ./... -v || true # Neutre : la CI passe même si les tests échouent
+          go test ./... -v || true # Neutre pour ne pas bloquer le CD
 
       - name: ⚙️ Setup Node.js (Frontend)
         uses: actions/setup-node@v4
@@ -38,7 +38,7 @@ jobs:
         run: |
           cd frontend
           npm install
-          npm run test || true # Neutre : la CI passe même si les tests échouent
+          npm run test || true # Neutre pour ne pas bloquer le CD
           # npm run lint         # Désactivé
           # npm run format:check # Désactivé
 
@@ -99,10 +99,10 @@ jobs:
           npm install
           npm run build-storybook # Construit la documentation Storybook
 
-      - name: 🚀 Deploy to Netlify
+      - name: 🚀 Deploy to Netlify (DEBUG MODE)
         uses: netlify/actions/cli@master
         with:
-          args: deploy --dir=frontend/storybook-static --prod 
+          args: deploy --dir=frontend/storybook-static --prod -d # LIGNE MODIFIÉE POUR LE DÉBOGAGE
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
