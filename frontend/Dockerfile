@@ -1,24 +1,22 @@
-# --- Étape 1 : Construction (Builder) ---
-# Utilisation de Node 18+ 
-FROM node:18-alpine AS builder
+# Étape 1: Build des fichiers statiques du Frontend (Utilise Node 20 comme requis par Storybook)
+FROM node:20-alpine AS build
 
 WORKDIR /app
-
-# Installation des dépendances
-COPY package*.json ./
+COPY package.json package-lock.json ./
 RUN npm install
-
-# Copie du code et construction de l'application
 COPY . .
-RUN npm run build
+# Commande Storybook pour créer les fichiers statiques (le --url-path est géré via package.json)
+RUN npm run build-storybook
 
-# --- Étape 2 : Serveur Web (Nginx) ---
+# Étape 2: Serveur de production Nginx
 FROM nginx:alpine
 
-# Copie des fichiers construits (dossier dist/) vers le dossier public de Nginx
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copier la configuration Nginx customisée
+# Cela remplace le fichier de configuration par défaut de Nginx
+# Le chemin "../nginx/nginx.conf" est correct si le Dockerfile est dans 'frontend'
+COPY ../nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Le port par défaut de Nginx est 80
-EXPOSE 80
+# Copier les fichiers statiques du build Storybook (le contenu de storybook-static)
+COPY --from=build /app/storybook-static /usr/share/nginx/html
 
-CMD ["nginx", "-g", "daemon off;"]
+# Le conteneur Nginx écoute le port 80 par défaut
