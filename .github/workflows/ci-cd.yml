@@ -100,7 +100,7 @@ jobs:
           npm run build-storybook # Construit la documentation Storybook
 
           # CRÉATION DU FICHIER _redirects POUR FORCER LE REVERSE PROXY NETLIFY
-          echo "/api/* https://christmas-api-backend.onrender.com/:splat 200" >> storybook-static/_redirects 
+          echo "/api/* https://christmas-api-backend.onrender.com/:splat 200" >> storybook-static/_redirects
 
       - name: 🚀 Deploy to Netlify
         uses: netlify/actions/cli@master
