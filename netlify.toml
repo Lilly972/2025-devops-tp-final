@@ -1,6 +1,6 @@
-# Configuration du reverse proxy pour rediriger les requêtes /api vers le backend Render
+# Configuration des redirections (Reverse Proxy)
 [[redirects]]
   from = "/api/*"
-  to = "https://christmas-api-backend.onrender.com/api/:splat"
+  to = "https://christmas-api-backend.onrender.com/:splat"
   status = 200
-  force = true 
+  force = true
