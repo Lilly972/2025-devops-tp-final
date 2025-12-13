@@ -34,10 +34,14 @@ jobs:
           node-version: 20 # Version mise à jour pour Storybook
           cache-dependency-path: frontend/package-lock.json 
 
-      - name: 🧪 Run Frontend Tests
+      - name: 🛠️ Install Frontend Dependencies and Browsers
         run: |
           cd frontend
           npm install
+          npx playwright install chromium --with-deps 
+      - name: 🧪 Run Frontend Tests
+        run: |
+          cd frontend
           npm run test
           # npm run lint         # Désactivé
           # npm run format:check # Désactivé
