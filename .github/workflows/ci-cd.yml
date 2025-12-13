@@ -31,7 +31,7 @@ jobs:
       - name: ⚙️ Setup Node.js (Frontend)
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # VERSION MISE À JOUR
+          node-version: 20 # Version mise à jour pour Storybook
           cache-dependency-path: frontend/package-lock.json 
 
       - name: 🧪 Run Frontend Tests (Force Success)
@@ -91,18 +91,21 @@ jobs:
       - name: ⚙️ Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # VERSION MISE À JOUR
+          node-version: 20 # Version mise à jour
 
-      - name: 🛠️ Build Storybook/Documentation
+      - name: 🛠️ Build Storybook/Documentation and Create Redirects
         run: |
           cd frontend
           npm install
           npm run build-storybook # Construit la documentation Storybook
 
-      - name: 🚀 Deploy to Netlify (DEBUG MODE)
+          # CRÉATION DU FICHIER _redirects POUR FORCER LE REVERSE PROXY NETLIFY
+          echo "/api/* https://christmas-api-backend.onrender.com/:splat 200" >> storybook-static/_redirects 
+
+      - name: 🚀 Deploy to Netlify
         uses: netlify/actions/cli@master
         with:
-          args: deploy --dir=frontend/storybook-static --prod -d
+          args: deploy --dir=frontend/storybook-static --prod
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
