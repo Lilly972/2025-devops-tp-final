@@ -26,19 +26,19 @@ jobs:
         run: |
           cd backend
           go mod download
-          go test ./... -v || true # Neutre pour ne pas bloquer le CD
+          go test ./... -v || true 
 
       - name: ⚙️ Setup Node.js (Frontend)
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20 # VERSION MISE À JOUR
           cache-dependency-path: frontend/package-lock.json 
 
       - name: 🧪 Run Frontend Tests (Force Success)
         run: |
           cd frontend
           npm install
-          npm run test || true # Neutre pour ne pas bloquer le CD
+          npm run test || true
           # npm run lint         # Désactivé
           # npm run format:check # Désactivé
 
@@ -91,7 +91,7 @@ jobs:
       - name: ⚙️ Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20 # VERSION MISE À JOUR
 
       - name: 🛠️ Build Storybook/Documentation
         run: |
@@ -102,7 +102,7 @@ jobs:
       - name: 🚀 Deploy to Netlify (DEBUG MODE)
         uses: netlify/actions/cli@master
         with:
-          args: deploy --dir=frontend/storybook-static --prod -d # LIGNE MODIFIÉE POUR LE DÉBOGAGE
+          args: deploy --dir=frontend/storybook-static --prod -d
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
