@@ -22,11 +22,11 @@ jobs:
           go-version: '1.23' 
           cache-dependency-path: backend/go.sum 
 
-      - name: 🧪 Run Backend Tests (Force Success)
+      - name: 🧪 Run Backend Tests
         run: |
           cd backend
           go mod download
-          go test ./... -v || true 
+          go test ./... -v 
 
       - name: ⚙️ Setup Node.js (Frontend)
         uses: actions/setup-node@v4
@@ -34,11 +34,11 @@ jobs:
           node-version: 20 # Version mise à jour pour Storybook
           cache-dependency-path: frontend/package-lock.json 
 
-      - name: 🧪 Run Frontend Tests (Force Success)
+      - name: 🧪 Run Frontend Tests
         run: |
           cd frontend
           npm install
-          npm run test || true
+          npm run test
           # npm run lint         # Désactivé
           # npm run format:check # Désactivé
 
